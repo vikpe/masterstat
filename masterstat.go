@@ -55,7 +55,7 @@ func Stat(masterAddress string, retries int, timeout int) ([]string, error) {
 		return serverAddresses, err
 	}
 
-	reader := bytes.NewReader(buffer[6:bufferLength])
+	reader := bytes.NewReader(buffer[len(expectedHeader):bufferLength])
 
 	for {
 		var rawAddress rawServerAddress
