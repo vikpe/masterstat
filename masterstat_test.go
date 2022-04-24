@@ -6,6 +6,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestUniqueStrings(t *testing.T) {
+	values := []string{"alpha", "beta", "beta", "gamma"}
+	result := uniqueStrings(values)
+	expect := []string{"alpha", "beta", "gamma"}
+
+	assert.Equal(t, expect, result)
+}
+
 func TestRawServerAddressToString(t *testing.T) {
 
 	rawAddress := rawServerAddress{

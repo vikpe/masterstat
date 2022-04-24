@@ -11,20 +11,6 @@ import (
 	"time"
 )
 
-func timeInFuture(delta int) time.Time {
-	return time.Now().Add(time.Duration(delta) * time.Millisecond)
-}
-
-type rawServerAddress struct {
-	IpParts [4]byte
-	Port    uint16
-}
-
-func (addr rawServerAddress) toString() string {
-	ip := net.IPv4(addr.IpParts[0], addr.IpParts[1], addr.IpParts[2], addr.IpParts[3]).String()
-	return fmt.Sprintf("%s:%d", ip, addr.Port)
-}
-
 func Stat(masterAddress string, retries int, timeout int) ([]string, error) {
 	serverAddresses := make([]string, 0)
 
@@ -113,15 +99,33 @@ func StatMany(masterAddresses []string, retries int, timeout int) []string {
 
 	wg.Wait()
 
-	addressMap := make(map[string]bool, 0)
-	uniqueAddresses := make([]string, 0)
+	return uniqueStrings(serverAddresses)
+}
 
-	for _, address := range serverAddresses {
-		if !addressMap[address] {
-			uniqueAddresses = append(uniqueAddresses, address)
-			addressMap[address] = true
+func uniqueStrings(values []string) []string {
+	valueMap := make(map[string]bool, 0)
+	uniqueValues := make([]string, 0)
+
+	for _, address := range values {
+		if !valueMap[address] {
+			uniqueValues = append(uniqueValues, address)
+			valueMap[address] = true
 		}
 	}
 
-	return uniqueAddresses
+	return uniqueValues
+}
+
+func timeInFuture(delta int) time.Time {
+	return time.Now().Add(time.Duration(delta) * time.Millisecond)
+}
+
+type rawServerAddress struct {
+	IpParts [4]byte
+	Port    uint16
+}
+
+func (addr rawServerAddress) toString() string {
+	ip := net.IPv4(addr.IpParts[0], addr.IpParts[1], addr.IpParts[2], addr.IpParts[3]).String()
+	return fmt.Sprintf("%s:%d", ip, addr.Port)
 }
