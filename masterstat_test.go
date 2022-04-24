@@ -14,7 +14,7 @@ func TestRawServerAddressToString(t *testing.T) {
 	}
 
 	result := rawAddress.toString()
-	expect := "1.2.3.4:2850z1"
+	expect := "1.2.3.4:28501"
 
 	assert.Equal(t, expect, result)
 }
