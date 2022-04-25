@@ -12,7 +12,7 @@ import (
 func Stat(masterAddress string) ([]string, error) {
 	statusPacket := []byte{0x63, 0x0a, 0x00}
 	expectedHeader := []byte{0xff, 0xff, 0xff, 0xff, 0x64, 0x0a}
-	response, err := UdpRequest(masterAddress, statusPacket, expectedHeader)
+	response, err := udpRequest(masterAddress, statusPacket, expectedHeader)
 
 	if err != nil {
 		return nil, err
