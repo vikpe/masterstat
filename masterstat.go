@@ -13,14 +13,14 @@ func Stat(masterAddress string) ([]string, error) {
 	statusPacket := []byte{0x63, 0x0a, 0x00}
 	expectedHeader := []byte{0xff, 0xff, 0xff, 0xff, 0x64, 0x0a}
 	response, err := UdpRequest(masterAddress, statusPacket, expectedHeader)
-	serverAddresses := make([]string, 0)
 
 	if err != nil {
-		return serverAddresses, err
+		return nil, err
 	}
 
 	responseBody := response[len(expectedHeader):]
 	reader := bytes.NewReader(responseBody)
+	serverAddresses := make([]string, 0)
 
 	for {
 		var rawAddress rawServerAddress
@@ -67,6 +67,16 @@ func StatMany(masterAddresses []string) []string {
 	return uniqueStrings(serverAddresses)
 }
 
+type rawServerAddress struct {
+	IpParts [4]byte
+	Port    uint16
+}
+
+func (addr rawServerAddress) toString() string {
+	ip := net.IPv4(addr.IpParts[0], addr.IpParts[1], addr.IpParts[2], addr.IpParts[3]).String()
+	return fmt.Sprintf("%s:%d", ip, addr.Port)
+}
+
 func uniqueStrings(values []string) []string {
 	valueMap := make(map[string]bool, 0)
 	uniqueValues := make([]string, 0)
@@ -79,14 +89,4 @@ func uniqueStrings(values []string) []string {
 	}
 
 	return uniqueValues
-}
-
-type rawServerAddress struct {
-	IpParts [4]byte
-	Port    uint16
-}
-
-func (addr rawServerAddress) toString() string {
-	ip := net.IPv4(addr.IpParts[0], addr.IpParts[1], addr.IpParts[2], addr.IpParts[3]).String()
-	return fmt.Sprintf("%s:%d", ip, addr.Port)
 }

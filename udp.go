@@ -8,11 +8,9 @@ import (
 )
 
 func UdpRequest(address string, statusPacket []byte, expectedHeader []byte) ([]byte, error) {
-	nullResponse := make([]byte, 0)
-
 	conn, err := net.Dial("udp4", address)
 	if err != nil {
-		return nullResponse, err
+		return nil, err
 	}
 	defer conn.Close()
 
@@ -29,7 +27,7 @@ func UdpRequest(address string, statusPacket []byte, expectedHeader []byte) ([]b
 
 		_, err = conn.Write(statusPacket)
 		if err != nil {
-			return nullResponse, err
+			return nil, err
 		}
 
 		conn.SetDeadline(timeInFuture(TimeoutInMs))
@@ -42,13 +40,13 @@ func UdpRequest(address string, statusPacket []byte, expectedHeader []byte) ([]b
 	}
 
 	if err != nil {
-		return nullResponse, err
+		return nil, err
 	}
 
 	isValidHeader := bytes.Equal(response[:len(expectedHeader)], expectedHeader)
 	if !isValidHeader {
 		err = errors.New(address + ": Response error, invalid header.")
-		return nullResponse, err
+		return nil, err
 	}
 
 	return response, nil
