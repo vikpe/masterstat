@@ -7,12 +7,15 @@ import (
 	"log"
 	"net"
 	"sync"
+
+	"github.com/vikpe/udpclient"
 )
 
 func GetServerAddresses(masterAddress string) ([]string, error) {
 	statusPacket := []byte{0x63, 0x0a, 0x00}
 	expectedHeader := []byte{0xff, 0xff, 0xff, 0xff, 0x64, 0x0a}
-	response, err := udpRequest(masterAddress, statusPacket, expectedHeader)
+	udpClient := udpclient.New()
+	response, err := udpClient.Request(masterAddress, statusPacket, expectedHeader)
 
 	if err != nil {
 		return nil, err
