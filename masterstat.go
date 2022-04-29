@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-func Stat(masterAddress string) ([]string, error) {
+func GetServerAddresses(masterAddress string) ([]string, error) {
 	statusPacket := []byte{0x63, 0x0a, 0x00}
 	expectedHeader := []byte{0xff, 0xff, 0xff, 0xff, 0x64, 0x0a}
 	response, err := udpRequest(masterAddress, statusPacket, expectedHeader)
@@ -36,7 +36,7 @@ func Stat(masterAddress string) ([]string, error) {
 	return serverAddresses, nil
 }
 
-func StatMany(masterAddresses []string) []string {
+func GetServerAddressesFromMany(masterAddresses []string) []string {
 	var (
 		wg              sync.WaitGroup
 		mutex           sync.Mutex
@@ -49,7 +49,7 @@ func StatMany(masterAddresses []string) []string {
 		go func(masterAddress string) {
 			defer wg.Done()
 
-			addresses, err := Stat(masterAddress)
+			addresses, err := GetServerAddresses(masterAddress)
 
 			if err != nil {
 				log.Println(fmt.Sprintf("ERROR: unable to stat %s", masterAddresses), err)
