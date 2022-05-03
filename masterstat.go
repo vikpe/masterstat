@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"log"
 	"net"
 	"sync"
 
@@ -39,11 +38,12 @@ func GetServerAddresses(masterAddress string) ([]string, error) {
 	return serverAddresses, nil
 }
 
-func GetServerAddressesFromMany(masterAddresses []string) []string {
+func GetServerAddressesFromMany(masterAddresses []string) ([]string, error) {
 	var (
 		wg              sync.WaitGroup
 		mutex           sync.Mutex
-		serverAddresses = make([]string, 0)
+		serverAddresses       = make([]string, 0)
+		masterStatErr   error = nil
 	)
 
 	for _, masterAddress := range masterAddresses {
@@ -55,7 +55,7 @@ func GetServerAddressesFromMany(masterAddresses []string) []string {
 			addresses, err := GetServerAddresses(masterAddress)
 
 			if err != nil {
-				log.Println(fmt.Sprintf("ERROR: unable to stat %s", masterAddresses), err)
+				masterStatErr = err
 				return
 			}
 
@@ -67,7 +67,11 @@ func GetServerAddressesFromMany(masterAddresses []string) []string {
 
 	wg.Wait()
 
-	return uniqueStrings(serverAddresses)
+	if masterStatErr != nil {
+		return nil, masterStatErr
+	}
+
+	return uniqueStrings(serverAddresses), nil
 }
 
 type rawServerAddress struct {
