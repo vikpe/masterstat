@@ -44,7 +44,7 @@ func GetServerAddressesFromMany(masterAddresses []string) ([]string, error) {
 	wg.Wait()
 
 	if masterStatErr != nil {
-		return nil, masterStatErr
+		return []string{}, masterStatErr
 	}
 
 	return qutil.UniqueStrings(serverAddresses), nil
