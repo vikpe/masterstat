@@ -15,7 +15,7 @@ var Command = udpclient.Command{
 
 func ParseResponse(responseBody []byte, err error) ([]string, error) {
 	if err != nil {
-		return nil, err
+		return []string{}, err
 	}
 
 	return ParseResponseBody(responseBody), nil
