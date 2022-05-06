@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/stretchr/testify v1.7.1
-	github.com/vikpe/udpclient v0.1.2
+	github.com/vikpe/udpclient v0.1.3
 )
 
 require (
