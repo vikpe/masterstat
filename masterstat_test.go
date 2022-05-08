@@ -7,14 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/vikpe/masterstat"
+	"github.com/vikpe/udphelper"
 )
-
-func udpListenAndRespond(addr string, response []byte) {
-	conn, _ := net.ListenPacket("udp", addr)
-	buffer := make([]byte, 1024)
-	_, dst, _ := conn.ReadFrom(buffer)
-	conn.WriteTo(response, dst)
-}
 
 func TestGetServerAddresses(t *testing.T) {
 	t.Run("UDP request error", func(t *testing.T) {
@@ -33,7 +27,7 @@ func TestGetServerAddresses(t *testing.T) {
 				0x42, 0x45, 0x65, 0x94, 0x6b, 0x6c, //  server 1
 				0xf5, 0x49, 0x6f, 0x6b, 0x6d, 0xc8, //  server 2
 			}
-			udpListenAndRespond(addr, responseBody)
+			udphelper.New(addr).Respond(responseBody)
 		}()
 
 		time.Sleep(10 * time.Millisecond)
@@ -73,7 +67,7 @@ func TestGetServerAddressesFromMany(t *testing.T) {
 				0x42, 0x45, 0x65, 0x94, 0x6b, 0x6c, //  server 1
 				0xf5, 0x49, 0x6f, 0x6b, 0x6d, 0xc8, //  server 2
 			}
-			udpListenAndRespond(master1, responseBody)
+			udphelper.New(master1).Respond(responseBody)
 		}()
 
 		// master 2
@@ -84,7 +78,7 @@ func TestGetServerAddressesFromMany(t *testing.T) {
 				0x42, 0x45, 0x65, 0x94, 0x6b, 0x6c, //  server 1
 				0xc8, 0x2a, 0x5c, 0xad, 0x6b, 0x6c, //  server 3
 			}
-			udpListenAndRespond(master2, responseBody)
+			udphelper.New(master2).Respond(responseBody)
 		}()
 
 		time.Sleep(10 * time.Millisecond)
