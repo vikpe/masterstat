@@ -19,7 +19,7 @@ func TestGetServerAddresses(t *testing.T) {
 	})
 
 	t.Run("Success", func(t *testing.T) {
-		const addr = ":8000"
+		const addr = ":8001"
 
 		go func() {
 			responseBody := []byte{
@@ -44,7 +44,7 @@ func TestGetServerAddresses(t *testing.T) {
 
 func TestGetServerAddressesFromMany(t *testing.T) {
 	t.Run("UDP request error", func(t *testing.T) {
-		const master = ":8000"
+		const master = ":8002"
 		go func() {
 			net.ListenPacket("udp", master)
 		}()
@@ -55,12 +55,12 @@ func TestGetServerAddressesFromMany(t *testing.T) {
 		result, err := masterstat.GetServerAddressesFromMany(masterAddresses)
 
 		assert.Equal(t, []string{}, result)
-		assert.ErrorContains(t, err, ":8000: i/o timeout")
+		assert.ErrorContains(t, err, ":8002: i/o timeout")
 	})
 
 	t.Run("Success", func(t *testing.T) {
 		// master 1
-		const master1 = ":8001"
+		const master1 = ":8003"
 		go func() {
 			responseBody := []byte{
 				0xff, 0xff, 0xff, 0xff, 0x64, 0x0a, // header
@@ -71,7 +71,7 @@ func TestGetServerAddressesFromMany(t *testing.T) {
 		}()
 
 		// master 2
-		const master2 = ":8002"
+		const master2 = ":8004"
 		go func() {
 			responseBody := []byte{
 				0xff, 0xff, 0xff, 0xff, 0x64, 0x0a, // header
