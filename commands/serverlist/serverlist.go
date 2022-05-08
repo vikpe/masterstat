@@ -18,10 +18,6 @@ func ParseResponse(responseBody []byte, err error) ([]string, error) {
 		return []string{}, err
 	}
 
-	return ParseResponseBody(responseBody), nil
-}
-
-func ParseResponseBody(responseBody []byte) []string {
 	reader := bytes.NewReader(responseBody)
 	serverAddresses := make([]string, 0)
 
@@ -36,7 +32,7 @@ func ParseResponseBody(responseBody []byte) []string {
 		serverAddresses = append(serverAddresses, rawAddress.ToString())
 	}
 
-	return serverAddresses
+	return serverAddresses, nil
 }
 
 type rawServerAddress struct {
