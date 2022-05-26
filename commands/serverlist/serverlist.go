@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"sort"
 
 	"github.com/vikpe/udpclient"
 )
@@ -31,6 +32,8 @@ func ParseResponse(responseBody []byte, err error) ([]string, error) {
 
 		serverAddresses = append(serverAddresses, rawAddress.ToString())
 	}
+
+	sort.Strings(serverAddresses)
 
 	return serverAddresses, nil
 }

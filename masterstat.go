@@ -1,6 +1,7 @@
 package masterstat
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/vikpe/masterstat/commands/serverlist"
@@ -47,5 +48,8 @@ func GetServerAddressesFromMany(masterAddresses []string) ([]string, error) {
 		return []string{}, masterStatErr
 	}
 
-	return qutil.UniqueStrings(serverAddresses), nil
+	serverAddresses = qutil.UniqueStrings(serverAddresses)
+	sort.Strings(serverAddresses)
+
+	return serverAddresses, nil
 }

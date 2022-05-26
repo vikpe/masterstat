@@ -13,8 +13,7 @@ import (
 func TestGetServerAddresses(t *testing.T) {
 	t.Run("UDP request error", func(t *testing.T) {
 		result, err := masterstat.GetServerAddresses("foo:666")
-		expect := []string{}
-		assert.Equal(t, expect, result)
+		assert.Equal(t, []string{}, result)
 		assert.ErrorContains(t, err, "dial udp4: lookup foo:")
 	})
 
@@ -34,8 +33,8 @@ func TestGetServerAddresses(t *testing.T) {
 
 		result, err := masterstat.GetServerAddresses(addr)
 		expect := []string{
-			"66.69.101.148:27500",
 			"245.73.111.107:28104",
+			"66.69.101.148:27500",
 		}
 		assert.Equal(t, expect, result)
 		assert.Equal(t, err, nil)
@@ -85,9 +84,14 @@ func TestGetServerAddressesFromMany(t *testing.T) {
 
 		masterAddresses := []string{master1, master2}
 		result, err := masterstat.GetServerAddressesFromMany(masterAddresses)
-		assert.Contains(t, result, "66.69.101.148:27500")
-		assert.Contains(t, result, "245.73.111.107:28104")
-		assert.Contains(t, result, "200.42.92.173:27500")
+
+		expect := []string{
+			"200.42.92.173:27500",
+			"245.73.111.107:28104",
+			"66.69.101.148:27500",
+		}
+
+		assert.Equal(t, expect, result)
 		assert.Equal(t, err, nil)
 	})
 }

@@ -29,9 +29,9 @@ func TestParseResponse(t *testing.T) {
 		responseBody, _ := hex.DecodeString(strings.Join([]string{"424565946b6c", "f5496f6b6dc8", "c82a5cad6b6c"}, ""))
 		serverAddresses, err := serverlist.ParseResponse(responseBody, nil)
 		expect := []string{
-			"66.69.101.148:27500",
-			"245.73.111.107:28104",
 			"200.42.92.173:27500",
+			"245.73.111.107:28104",
+			"66.69.101.148:27500",
 		}
 		assert.Equal(t, expect, serverAddresses)
 		assert.Nil(t, err)
