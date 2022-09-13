@@ -1,6 +1,8 @@
 package masterstat
 
 import (
+	"errors"
+	"fmt"
 	"sort"
 	"sync"
 
@@ -15,12 +17,12 @@ func GetServerAddresses(masterAddress string) ([]string, error) {
 	)
 }
 
-func GetServerAddressesFromMany(masterAddresses []string) ([]string, error) {
+func GetServerAddressesFromMany(masterAddresses []string) ([]string, []error) {
 	var (
 		wg              sync.WaitGroup
 		mutex           sync.Mutex
-		serverAddresses       = make([]string, 0)
-		masterStatErr   error = nil
+		serverAddresses = make([]string, 0)
+		errs            = make([]error, 0)
 	)
 
 	for _, masterAddress := range masterAddresses {
@@ -32,7 +34,7 @@ func GetServerAddressesFromMany(masterAddresses []string) ([]string, error) {
 			addresses, err := GetServerAddresses(masterAddress)
 
 			if err != nil {
-				masterStatErr = err
+				errs = append(errs, errors.New(fmt.Sprintf(`%s - %s`, masterAddress, err)))
 				return
 			}
 
@@ -44,12 +46,8 @@ func GetServerAddressesFromMany(masterAddresses []string) ([]string, error) {
 
 	wg.Wait()
 
-	if masterStatErr != nil {
-		return []string{}, masterStatErr
-	}
-
 	serverAddresses = qutil.UniqueStrings(serverAddresses)
 	sort.Strings(serverAddresses)
 
-	return serverAddresses, nil
+	return serverAddresses, errs
 }

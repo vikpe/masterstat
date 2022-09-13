@@ -1,7 +1,7 @@
 package masterstat_test
 
 import (
-	"net"
+	"errors"
 	"testing"
 	"time"
 
@@ -14,7 +14,7 @@ func TestGetServerAddresses(t *testing.T) {
 	t.Run("UDP request error", func(t *testing.T) {
 		result, err := masterstat.GetServerAddresses("foo:666")
 		assert.Equal(t, []string{}, result)
-		assert.ErrorContains(t, err, "dial udp4: lookup foo:")
+		assert.ErrorContains(t, err, "failure in name resolution")
 	})
 
 	t.Run("Success", func(t *testing.T) {
@@ -28,7 +28,6 @@ func TestGetServerAddresses(t *testing.T) {
 			}
 			udphelper.New(addr).Respond(responseBody)
 		}()
-
 		time.Sleep(10 * time.Millisecond)
 
 		result, err := masterstat.GetServerAddresses(addr)
@@ -43,22 +42,15 @@ func TestGetServerAddresses(t *testing.T) {
 
 func TestGetServerAddressesFromMany(t *testing.T) {
 	t.Run("UDP request error", func(t *testing.T) {
-		const master = ":8002"
-		go func() {
-			net.ListenPacket("udp", master)
-		}()
-
-		time.Sleep(10 * time.Millisecond)
-
-		masterAddresses := []string{master}
-		result, err := masterstat.GetServerAddressesFromMany(masterAddresses)
+		masterAddresses := []string{"foo:666"}
+		result, errs := masterstat.GetServerAddressesFromMany(masterAddresses)
 
 		assert.Equal(t, []string{}, result)
-		assert.ErrorContains(t, err, ":8002: i/o timeout")
+		assert.Len(t, errs, 1)
+		assert.ErrorContains(t, errs[0], "failure in name resolution")
 	})
 
 	t.Run("Success", func(t *testing.T) {
-		// master 1
 		const master1 = ":8003"
 		go func() {
 			responseBody := []byte{
@@ -69,7 +61,6 @@ func TestGetServerAddressesFromMany(t *testing.T) {
 			udphelper.New(master1).Respond(responseBody)
 		}()
 
-		// master 2
 		const master2 = ":8004"
 		go func() {
 			responseBody := []byte{
@@ -79,11 +70,11 @@ func TestGetServerAddressesFromMany(t *testing.T) {
 			}
 			udphelper.New(master2).Respond(responseBody)
 		}()
-
 		time.Sleep(10 * time.Millisecond)
 
-		masterAddresses := []string{master1, master2}
-		result, err := masterstat.GetServerAddressesFromMany(masterAddresses)
+		const masterInvalid = "foo:666"
+		masterAddresses := []string{master1, masterInvalid, master2}
+		result, errs := masterstat.GetServerAddressesFromMany(masterAddresses)
 
 		expect := []string{
 			"200.42.92.173:27500",
@@ -92,6 +83,6 @@ func TestGetServerAddressesFromMany(t *testing.T) {
 		}
 
 		assert.Equal(t, expect, result)
-		assert.Equal(t, err, nil)
+		assert.Equal(t, errs, []error{errors.New("foo:666 - dial udp4: lookup foo: Temporary failure in name resolution")})
 	})
 }
